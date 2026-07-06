@@ -1,15 +1,18 @@
 (function initLinkedInCrmCapture() {
   const SAVE_WORDS = ["save", "save job", "save post"];
-  const NEGATIVE_WORDS = ["saved", "unsave", "remove", "discard"];
+  const NEGATIVE_WORDS = ["unsave", "remove", "discard"];
   const CONTEXT_TTL_MS = 20000;
   let recentLinkedInContext = null;
 
   function textFor(element) {
+    const target = asElement(element);
+    if (!target) return "";
+
     return [
-      element.getAttribute("aria-label"),
-      element.getAttribute("title"),
-      element.innerText,
-      element.textContent
+      target.getAttribute("aria-label"),
+      target.getAttribute("title"),
+      target.innerText,
+      target.textContent
     ]
       .filter(Boolean)
       .join(" ")
@@ -19,7 +22,10 @@
   }
 
   function isLikelySaveControl(element) {
-    const control = element.closest("button, [role='button'], [role='menuitem'], a");
+    const target = asElement(element);
+    if (!target) return null;
+
+    const control = target.closest("button, [role='button'], [role='menuitem'], a");
     if (!control) return null;
 
     const text = textFor(control);
@@ -32,7 +38,10 @@
   }
 
   function rememberLinkedInContext(element) {
-    const scope = closestLinkedInItemScope(element);
+    const target = asElement(element);
+    if (!target) return;
+
+    const scope = closestLinkedInItemScope(target);
     if (!scope) return;
 
     const url = urlFromScope(scope);
@@ -69,7 +78,10 @@
   }
 
   function closestLinkedInItemScope(element) {
-    return element.closest(
+    const target = asElement(element);
+    if (!target) return null;
+
+    return target.closest(
       [
         "article",
         "[data-urn]",
@@ -150,6 +162,11 @@
     }
   }
 
+  function asElement(target) {
+    if (target?.nodeType === Node.ELEMENT_NODE) return target;
+    return target?.parentElement || null;
+  }
+
   function inferType(url) {
     const path = new URL(url).pathname.toLowerCase();
 
@@ -159,26 +176,32 @@
     return "unknown";
   }
 
-  document.addEventListener(
-    "click",
-    (event) => {
-      rememberLinkedInContext(event.target);
+  ["pointerdown", "mousedown", "mouseover", "focusin"].forEach((eventName) => {
+    document.addEventListener(
+      eventName,
+      (event) => rememberLinkedInContext(event.target),
+      true
+    );
+  });
 
-      const control = isLikelySaveControl(event.target);
-      if (!control) return;
+  document.addEventListener("click", handleClick, true);
 
-      const url = linkedInItemUrlNear(control);
+  function handleClick(event) {
+    rememberLinkedInContext(event.target);
 
-      chrome.runtime.sendMessage({
-        type: "LINKEDIN_CRM_SAVE_DETECTED",
-        payload: {
-          url,
-          source: "linkedin",
-          itemType: inferType(url),
-          capturedAt: new Date().toISOString()
-        }
-      });
-    },
-    true
-  );
+    const control = isLikelySaveControl(event.target);
+    if (!control) return;
+
+    const url = linkedInItemUrlNear(control);
+
+    chrome.runtime.sendMessage({
+      type: "LINKEDIN_CRM_SAVE_DETECTED",
+      payload: {
+        url,
+        source: "linkedin",
+        itemType: inferType(url),
+        capturedAt: new Date().toISOString()
+      }
+    });
+  }
 })();

@@ -69,6 +69,27 @@ h1 {
   gap: 8px;
 }
 
+.diagnostic {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+}
+
+.diagnostic strong {
+  font-size: 12px;
+}
+
+.diagnostic p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .queue-item {
   background: var(--panel);
   border: 1px solid var(--line);

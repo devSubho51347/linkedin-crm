@@ -2,6 +2,7 @@ importScripts("shared.js");
 
 const STORAGE_KEY = "linkedinCrmItems";
 const SETTINGS_KEY = "linkedinCrmSettings";
+const LAST_CAPTURE_KEY = "linkedinCrmLastCapture";
 
 chrome.runtime.onInstalled.addListener(async () => {
   await chrome.alarms.create("linkedin-crm-daily-review", {
@@ -23,8 +24,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type !== "LINKEDIN_CRM_SAVE_DETECTED") return false;
 
   saveLinkedInItem(message.payload)
-    .then((item) => sendResponse({ ok: true, item }))
-    .catch((error) => sendResponse({ ok: false, error: error.message }));
+    .then(async (item) => {
+      await saveLastCapture({
+        ok: true,
+        url: item.url,
+        itemType: item.itemType,
+        capturedAt: item.lastSavedAt
+      });
+      sendResponse({ ok: true, item });
+    })
+    .catch(async (error) => {
+      await saveLastCapture({
+        ok: false,
+        url: message.payload?.url || "",
+        itemType: message.payload?.itemType || "unknown",
+        capturedAt: new Date().toISOString(),
+        error: error.message
+      });
+      sendResponse({ ok: false, error: error.message });
+    });
 
   return true;
 });
@@ -87,4 +105,10 @@ async function saveLinkedInItem(payload) {
 async function getItems() {
   const data = await chrome.storage.local.get(STORAGE_KEY);
   return data[STORAGE_KEY] || {};
+}
+
+async function saveLastCapture(capture) {
+  await chrome.storage.local.set({
+    [LAST_CAPTURE_KEY]: capture
+  });
 }
