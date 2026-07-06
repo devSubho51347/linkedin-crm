@@ -151,9 +151,64 @@ main {
   font-size: 12px;
 }
 
+.month-folders,
 .cards {
   display: grid;
   gap: 10px;
+}
+
+.month-folder {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.month-folder summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  font-weight: 700;
+  justify-content: space-between;
+  list-style: none;
+  padding: 10px 12px;
+}
+
+.month-folder summary::-webkit-details-marker {
+  display: none;
+}
+
+.month-folder summary::before {
+  color: var(--muted);
+  content: ">";
+  font-size: 12px;
+  margin-right: 8px;
+  transform: rotate(0deg);
+  transition: transform 120ms ease;
+}
+
+.month-folder[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.month-folder summary span {
+  flex: 1;
+}
+
+.month-folder summary strong {
+  background: #e7f1fb;
+  border-radius: 999px;
+  color: var(--accent-dark);
+  font-size: 11px;
+  min-width: 24px;
+  padding: 3px 8px;
+  text-align: center;
+}
+
+.month-folder .cards {
+  border-top: 1px solid var(--line);
+  padding: 10px;
 }
 
 .card {

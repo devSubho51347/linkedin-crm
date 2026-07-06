@@ -109,6 +109,7 @@ function renderColumns(items) {
 
   for (const column of STATUS_COLUMNS) {
     const columnItems = items.filter((item) => item.status === column.id);
+    const monthGroups = groupItemsByMonth(columnItems);
     const element = document.createElement("section");
     element.className = "column";
     element.dataset.status = column.id;
@@ -117,16 +118,76 @@ function renderColumns(items) {
         <h2>${column.label}</h2>
         <span>${columnItems.length}</span>
       </header>
-      <div class="cards"></div>
+      <div class="month-folders"></div>
     `;
 
-    const cards = element.querySelector(".cards");
-    for (const item of columnItems) {
-      cards.append(renderCard(item));
+    const folders = element.querySelector(".month-folders");
+    for (const group of monthGroups) {
+      folders.append(renderMonthFolder(group));
     }
 
     board.append(element);
   }
+}
+
+function groupItemsByMonth(items) {
+  const groups = new Map();
+
+  for (const item of items) {
+    const key = item.boardKey || "unknown";
+    const label = item.boardLabel || "Unknown Month";
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        key,
+        label,
+        items: []
+      });
+    }
+
+    groups.get(key).items.push(item);
+  }
+
+  return [...groups.values()]
+    .map((group) => ({
+      ...group,
+      items: group.items.sort(
+        (left, right) => new Date(right.lastSavedAt) - new Date(left.lastSavedAt)
+      )
+    }))
+    .sort((left, right) => right.key.localeCompare(left.key));
+}
+
+function renderMonthFolder(group) {
+  const folder = document.createElement("details");
+  folder.className = "month-folder";
+  folder.open = shouldOpenMonthFolder(group);
+  folder.innerHTML = `
+    <summary>
+      <span>${escapeHtml(group.label)}</span>
+      <strong>${group.items.length}</strong>
+    </summary>
+    <div class="cards"></div>
+  `;
+
+  const cards = folder.querySelector(".cards");
+  for (const item of group.items) {
+    cards.append(renderCard(item));
+  }
+
+  return folder;
+}
+
+function shouldOpenMonthFolder(group) {
+  if (state.boardKey !== "all") return true;
+
+  const latestBoardKey = Object.values(state.items)
+    .filter((item) => !item.archived)
+    .map((item) => item.boardKey)
+    .filter(Boolean)
+    .sort((left, right) => right.localeCompare(left))[0];
+
+  return group.key === latestBoardKey;
 }
 
 function renderCard(item) {
