@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LinkedIn CRM</title>
+    <link rel="stylesheet" href="styles/popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <header>
+        <p>LinkedIn CRM</p>
+        <h1>Today Queue</h1>
+      </header>
+
+      <section class="summary" aria-label="Summary">
+        <div><strong id="totalCount">0</strong><span>Total</span></div>
+        <div><strong id="openCount">0</strong><span>Open</span></div>
+      </section>
+
+      <section id="queue" class="queue" aria-label="Review queue"></section>
+
+      <button id="openDashboard" type="button">Open Board</button>
+    </main>
+
+    <script src="src/popup.js"></script>
+  </body>
+</html>

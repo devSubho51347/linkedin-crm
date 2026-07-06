@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LinkedIn CRM</title>
+    <link rel="stylesheet" href="styles/app.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">LinkedIn CRM</p>
+        <h1>Saved Items Board</h1>
+      </div>
+      <div class="stats">
+        <div><strong id="totalCount">0</strong><span>Total</span></div>
+        <div><strong id="openCount">0</strong><span>Open</span></div>
+        <div><strong id="doneCount">0</strong><span>Done</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="toolbar" aria-label="Filters">
+        <input id="search" type="search" placeholder="Search URL, note, or tag">
+        <select id="boardFilter" aria-label="Month board">
+          <option value="all">All months</option>
+        </select>
+        <select id="typeFilter" aria-label="Item type">
+          <option value="all">All types</option>
+          <option value="post">Posts</option>
+          <option value="job">Jobs</option>
+          <option value="article">Articles</option>
+          <option value="unknown">Unknown</option>
+        </select>
+        <button id="exportJson" type="button">Export</button>
+        <button id="deleteDone" type="button">Delete Done</button>
+      </section>
+
+      <p class="visible-count"><span id="visibleCount">0</span> visible items</p>
+      <section id="board" class="board" aria-label="Kanban board"></section>
+    </main>
+
+    <script src="src/app.js"></script>
+  </body>
+</html>
