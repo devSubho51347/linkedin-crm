@@ -38,6 +38,88 @@
 
       <p class="visible-count"><span id="visibleCount">0</span> visible items</p>
       <section id="board" class="board" aria-label="Kanban board"></section>
+
+      <section class="settings-panel" aria-label="Email digest settings">
+        <div>
+          <p class="eyebrow">Email Digest</p>
+          <h2>Schedule unread items</h2>
+          <p class="settings-copy">Send your latest unread saved items to your inbox.</p>
+        </div>
+
+        <form id="digestForm" class="settings-grid">
+          <label class="checkbox-row">
+            <input id="digestEnabled" type="checkbox">
+            Enable scheduled email digest
+          </label>
+
+          <label>
+            Email address
+            <input id="digestEmail" type="email" placeholder="you@example.com">
+          </label>
+
+          <label>
+            Backend endpoint
+            <input id="digestEndpoint" type="url" placeholder="https://your-app.vercel.app/api/send-digest">
+          </label>
+
+          <label>
+            Digest token
+            <input id="digestToken" type="password" placeholder="Matches DIGEST_API_TOKEN">
+          </label>
+
+          <label>
+            Frequency
+            <select id="digestFrequency">
+              <option value="daily">Daily</option>
+              <option value="weekdays">Weekdays</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </label>
+
+          <label>
+            Weekly day
+            <select id="digestWeeklyDay">
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+              <option value="0">Sunday</option>
+            </select>
+          </label>
+
+          <label>
+            Send time
+            <input id="digestTime" type="time">
+          </label>
+
+          <label>
+            Items per email
+            <select id="digestItemCount">
+              <option value="5">5 items</option>
+              <option value="6">6 items</option>
+            </select>
+          </label>
+
+          <label class="checkbox-row">
+            <input id="digestIncludePosts" type="checkbox">
+            Include posts and articles
+          </label>
+
+          <label class="checkbox-row">
+            <input id="digestIncludeJobs" type="checkbox">
+            Include jobs
+          </label>
+
+          <div class="settings-actions">
+            <button id="saveDigestSettings" type="submit">Save Schedule</button>
+            <button id="sendDigestNow" type="button">Send Now</button>
+          </div>
+
+          <p id="digestStatus" class="settings-status">Not scheduled yet.</p>
+        </form>
+      </section>
     </main>
 
     <script src="src/app.js"></script>

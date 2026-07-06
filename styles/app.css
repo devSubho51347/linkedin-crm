@@ -268,6 +268,98 @@ textarea {
   width: 100%;
 }
 
+.settings-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 18px;
+}
+
+.settings-panel h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.settings-copy {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 6px 0 0;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+}
+
+.settings-grid label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 6px;
+}
+
+.settings-grid input,
+.settings-grid select {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.settings-grid .checkbox-row {
+  align-items: center;
+  color: var(--text);
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+}
+
+.settings-grid .checkbox-row input {
+  min-height: auto;
+}
+
+.settings-actions {
+  align-items: end;
+  display: flex;
+  gap: 10px;
+}
+
+.settings-actions button {
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+.settings-actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.settings-actions button + button {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.settings-status {
+  align-self: end;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+
 @media (max-width: 840px) {
   .app-header {
     align-items: flex-start;
@@ -281,5 +373,9 @@ textarea {
 
   .board {
     grid-template-columns: repeat(5, 260px);
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
   }
 }

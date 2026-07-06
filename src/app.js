@@ -11,9 +11,25 @@ const STATUS_COLUMNS = [
 
 const state = {
   items: {},
+  settings: {},
   boardKey: "all",
   search: "",
   type: "all"
+};
+
+const DEFAULT_EMAIL_DIGEST = {
+  enabled: false,
+  email: "",
+  endpointUrl: "",
+  authToken: "",
+  frequency: "daily",
+  weeklyDay: 1,
+  time: "09:00",
+  itemCount: 5,
+  includePosts: true,
+  includeJobs: true,
+  lastSentAt: "",
+  lastStatus: "Not scheduled yet."
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -39,11 +55,14 @@ function bindControls() {
 
   document.querySelector("#exportJson").addEventListener("click", exportJson);
   document.querySelector("#deleteDone").addEventListener("click", deleteDoneItems);
+  document.querySelector("#digestForm").addEventListener("submit", saveDigestSettings);
+  document.querySelector("#sendDigestNow").addEventListener("click", sendDigestNow);
 }
 
 async function loadAndRender() {
   const data = await chrome.storage.local.get([STORAGE_KEY, SETTINGS_KEY]);
   state.items = data[STORAGE_KEY] || {};
+  state.settings = data[SETTINGS_KEY] || {};
   render();
 }
 
@@ -52,6 +71,7 @@ function render() {
   renderStats(items);
   renderBoardFilter();
   renderColumns(items);
+  renderDigestSettings();
 }
 
 function visibleItems() {
@@ -223,6 +243,99 @@ function renderCard(item) {
   });
 
   return card;
+}
+
+function renderDigestSettings() {
+  const digest = digestSettings();
+
+  document.querySelector("#digestEnabled").checked = digest.enabled;
+  document.querySelector("#digestEmail").value = digest.email;
+  document.querySelector("#digestEndpoint").value = digest.endpointUrl;
+  document.querySelector("#digestToken").value = digest.authToken;
+  document.querySelector("#digestFrequency").value = digest.frequency;
+  document.querySelector("#digestWeeklyDay").value = String(digest.weeklyDay);
+  document.querySelector("#digestTime").value = digest.time;
+  document.querySelector("#digestItemCount").value = String(digest.itemCount);
+  document.querySelector("#digestIncludePosts").checked = digest.includePosts;
+  document.querySelector("#digestIncludeJobs").checked = digest.includeJobs;
+  document.querySelector("#digestStatus").textContent = digest.lastStatus || "Not scheduled yet.";
+}
+
+async function saveDigestSettings(event) {
+  event.preventDefault();
+  await persistDigestSettings();
+}
+
+async function persistDigestSettings() {
+  const emailDigest = readDigestForm();
+  state.settings = {
+    ...state.settings,
+    emailDigest: {
+      ...digestSettings(),
+      ...emailDigest,
+      lastStatus: emailDigest.enabled ? "Schedule saved." : "Digest disabled."
+    }
+  };
+
+  await chrome.storage.local.set({ [SETTINGS_KEY]: state.settings });
+  renderDigestSettings();
+}
+
+async function sendDigestNow() {
+  const button = document.querySelector("#sendDigestNow");
+  const status = document.querySelector("#digestStatus");
+
+  await persistDigestSettings();
+  button.disabled = true;
+  status.textContent = "Sending digest...";
+
+  chrome.runtime.sendMessage({ type: "LINKEDIN_CRM_SEND_DIGEST_NOW" }, async (response) => {
+    button.disabled = false;
+    const lastError = chrome.runtime.lastError;
+
+    if (lastError) {
+      status.textContent = lastError.message;
+      await refreshSettings();
+      return;
+    }
+
+    if (!response?.ok) {
+      status.textContent = response?.error || "Failed to send digest.";
+      await refreshSettings();
+      return;
+    }
+
+    status.textContent = response.status || "Digest sent.";
+    await refreshSettings();
+  });
+}
+
+async function refreshSettings() {
+  const data = await chrome.storage.local.get(SETTINGS_KEY);
+  state.settings = data[SETTINGS_KEY] || state.settings;
+  renderDigestSettings();
+}
+
+function readDigestForm() {
+  return {
+    enabled: document.querySelector("#digestEnabled").checked,
+    email: document.querySelector("#digestEmail").value.trim(),
+    endpointUrl: document.querySelector("#digestEndpoint").value.trim(),
+    authToken: document.querySelector("#digestToken").value.trim(),
+    frequency: document.querySelector("#digestFrequency").value,
+    weeklyDay: Number(document.querySelector("#digestWeeklyDay").value),
+    time: document.querySelector("#digestTime").value || "09:00",
+    itemCount: Number(document.querySelector("#digestItemCount").value),
+    includePosts: document.querySelector("#digestIncludePosts").checked,
+    includeJobs: document.querySelector("#digestIncludeJobs").checked
+  };
+}
+
+function digestSettings() {
+  return {
+    ...DEFAULT_EMAIL_DIGEST,
+    ...(state.settings.emailDigest || {})
+  };
 }
 
 async function updateItem(id, patch) {

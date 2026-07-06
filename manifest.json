@@ -4,7 +4,11 @@
   "description": "A lightweight local-first board for LinkedIn items you save.",
   "version": "0.1.0",
   "permissions": ["storage", "alarms", "notifications"],
-  "host_permissions": ["https://www.linkedin.com/*"],
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "https://*.vercel.app/*",
+    "http://localhost/*"
+  ],
   "background": {
     "service_worker": "src/background.js"
   },
